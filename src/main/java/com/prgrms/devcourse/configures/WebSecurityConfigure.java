@@ -2,6 +2,8 @@ package com.prgrms.devcourse.configures;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -16,6 +18,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class WebSecurityConfigure {
     @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .build();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
@@ -24,13 +32,13 @@ public class WebSecurityConfigure {
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails user = User.builder()
                 .username("user")
-                .password("user123")
+                .password("{noop}user123")
                 .roles("USER")
                 .build();
 
         UserDetails admin = User.builder()
                 .username("admin")
-                .password("admin123")
+                .password("{noop}admin123")
                 .roles("ADMIN")
                 .build();
 
@@ -53,9 +61,15 @@ public class WebSecurityConfigure {
                         .anyRequest()
                         .permitAll()
                 )
-                .formLogin((formLoginConfigurer) -> formLoginConfigurer
+                .formLogin((loginConfigurer) -> loginConfigurer
                         .defaultSuccessUrl("/")
                         .permitAll()
+                ).logout((logoutConfigurer) -> logoutConfigurer
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                ).rememberMe((rememberMeConfigurer) -> rememberMeConfigurer
+                        .key("remember-me")
+                        .tokenValiditySeconds(300)
                 );
 
         return http.build();
