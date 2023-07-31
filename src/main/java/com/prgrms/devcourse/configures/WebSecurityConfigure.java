@@ -23,10 +23,13 @@ public class WebSecurityConfigure {
                 .build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }
+    // https://www.baeldung.com/spring-security-5-default-password-encoder
+    // password()메서드에 {noop}을 달면 자동으로 NoOpPasswordEncoder 를 사용합니다.
+
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return NoOpPasswordEncoder.getInstance();
+//    }
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
